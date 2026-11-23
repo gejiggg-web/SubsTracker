@@ -7,6 +7,10 @@ import { sendWechatBotNotification } from '../../services/notify/wechat.js';
 import { sendEmailNotification } from '../../services/notify/email.js';
 import { sendBarkNotification } from '../../services/notify/bark.js';
 import { sendGotifyNotification } from '../../services/notify/gotify.js';
+import { sendServerChanNotification } from '../../services/notify/serverchan.js';
+import { sendPushPlusNotification } from '../../services/notify/pushplus.js';
+import { sendNtfyNotification } from '../../services/notify/ntfy.js';
+import { sendWPushNotification } from '../../services/notify/wpush.js';
 
 async function handleTestNotification(request, env) {
   try {
@@ -16,7 +20,7 @@ async function handleTestNotification(request, env) {
     let message = '';
 
     const type = typeof body.type === 'string' ? body.type.trim() : '';
-    const supportedTypes = ['telegram', 'notifyx', 'webhook', 'wechatbot', 'email', 'bark', 'gotify'];
+    const supportedTypes = ['telegram', 'notifyx', 'webhook', 'wechatbot', 'email', 'bark', 'gotify', 'serverchan', 'pushplus', 'ntfy', 'wpush'];
 
     if (!type) {
       return new Response(
@@ -36,7 +40,8 @@ async function handleTestNotification(request, env) {
       const testConfig = {
         ...config,
         TG_BOT_TOKEN: typeof body.TG_BOT_TOKEN === 'string' && body.TG_BOT_TOKEN.trim().length > 0 ? body.TG_BOT_TOKEN.trim() : config.TG_BOT_TOKEN,
-        TG_CHAT_ID: typeof body.TG_CHAT_ID === 'string' && body.TG_CHAT_ID.trim().length > 0 ? body.TG_CHAT_ID.trim() : config.TG_CHAT_ID
+        TG_CHAT_ID: typeof body.TG_CHAT_ID === 'string' && body.TG_CHAT_ID.trim().length > 0 ? body.TG_CHAT_ID.trim() : config.TG_CHAT_ID,
+        TG_TOPIC_ID: typeof body.TG_TOPIC_ID === 'string' && body.TG_TOPIC_ID.trim().length > 0 ? body.TG_TOPIC_ID.trim() : config.TG_TOPIC_ID
       };
 
       const content = '*测试通知*\n\n这是一条测试通知，用于验证Telegram通知功能是否正常工作。\n\n发送时间: ' + formatBeijingTime();
@@ -135,6 +140,60 @@ async function handleTestNotification(request, env) {
 
       success = await sendGotifyNotification(title, content, testConfig);
       message = success ? 'Gotify通知发送成功' : 'Gotify通知发送失败，请检查配置';
+    } else if (type === 'serverchan') {
+      const testConfig = {
+        ...config,
+        SERVERCHAN_SENDKEY: (typeof body.SERVERCHAN_SENDKEY === 'string' && body.SERVERCHAN_SENDKEY.trim().length > 0)
+          ? body.SERVERCHAN_SENDKEY.trim()
+          : config.SERVERCHAN_SENDKEY
+      };
+
+      const title = '测试通知';
+      const content = '这是一条测试通知，用于验证Server酱通知功能是否正常工作。\n\n发送时间: ' + formatBeijingTime();
+
+      success = await sendServerChanNotification(title, content, testConfig);
+      message = success ? 'Server酱通知发送成功' : 'Server酱通知发送失败，请检查配置';
+    } else if (type === 'pushplus') {
+      const testConfig = {
+        ...config,
+        PUSHPLUS_TOKEN: (typeof body.PUSHPLUS_TOKEN === 'string' && body.PUSHPLUS_TOKEN.trim().length > 0)
+          ? body.PUSHPLUS_TOKEN.trim()
+          : config.PUSHPLUS_TOKEN,
+        PUSHPLUS_TOPIC: body.PUSHPLUS_TOPIC || config.PUSHPLUS_TOPIC,
+        PUSHPLUS_CHANNEL: body.PUSHPLUS_CHANNEL || config.PUSHPLUS_CHANNEL
+      };
+
+      const title = '测试通知';
+      const content = '这是一条测试通知，用于验证PushPlus通知功能是否正常工作。\n\n发送时间: ' + formatBeijingTime();
+
+      success = await sendPushPlusNotification(title, content, testConfig);
+      message = success ? 'PushPlus通知发送成功' : 'PushPlus通知发送失败，请检查配置';
+    } else if (type === 'ntfy') {
+      const testConfig = {
+        ...config,
+        NTFY_SERVER: body.NTFY_SERVER || config.NTFY_SERVER,
+        NTFY_TOPIC: body.NTFY_TOPIC || config.NTFY_TOPIC,
+        NTFY_TOKEN: (typeof body.NTFY_TOKEN === 'string' && body.NTFY_TOKEN.trim().length > 0)
+          ? body.NTFY_TOKEN.trim()
+          : config.NTFY_TOKEN
+      };
+      const title = '测试通知';
+      const content = '这是一条测试通知，用于验证 ntfy 通知功能是否正常工作。\n\n发送时间: ' + formatBeijingTime();
+      success = await sendNtfyNotification(title, content, testConfig);
+      message = success ? 'ntfy 通知发送成功' : 'ntfy 通知发送失败，请检查配置';
+    } else if (type === 'wpush') {
+      const testConfig = {
+        ...config,
+        WPUSH_APIKEY: (typeof body.WPUSH_APIKEY === 'string' && body.WPUSH_APIKEY.trim().length > 0)
+          ? body.WPUSH_APIKEY.trim()
+          : config.WPUSH_APIKEY,
+        WPUSH_CHANNEL: typeof body.WPUSH_CHANNEL === 'string' ? body.WPUSH_CHANNEL.trim() : config.WPUSH_CHANNEL,
+        WPUSH_TOPIC_CODE: typeof body.WPUSH_TOPIC_CODE === 'string' ? body.WPUSH_TOPIC_CODE.trim() : config.WPUSH_TOPIC_CODE
+      };
+      const title = '测试通知';
+      const content = '这是一条测试通知，用于验证 WPUSH 通知功能是否正常工作。\n\n发送时间: ' + formatBeijingTime();
+      success = await sendWPushNotification(title, content, testConfig);
+      message = success ? 'WPUSH 通知发送成功' : 'WPUSH 通知发送失败，请检查配置';
     }
 
     return new Response(

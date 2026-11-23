@@ -11,7 +11,11 @@ const SECRET_FIELDS = [
   'RESEND_API_KEY',
   'BARK_DEVICE_KEY',
   'THIRD_PARTY_API_TOKEN',
-  'GOTIFY_APP_TOKEN'
+  'GOTIFY_APP_TOKEN',
+  'SERVERCHAN_SENDKEY',
+  'PUSHPLUS_TOKEN',
+  'NTFY_TOKEN',
+  'WPUSH_APIKEY'
 ];
 
 function isConfiguredSecret(value) {
@@ -81,6 +85,7 @@ async function handleUpdateConfig(request, env) {
 
       TG_BOT_TOKEN: mergeSecretField(config, newConfig, 'TG_BOT_TOKEN', clearSecretFields),
       TG_CHAT_ID: newConfig.TG_CHAT_ID || '',
+      TG_TOPIC_ID: (newConfig.TG_TOPIC_ID != null ? String(newConfig.TG_TOPIC_ID) : '').trim(),
 
       NOTIFYX_API_KEY: mergeSecretField(config, newConfig, 'NOTIFYX_API_KEY', clearSecretFields),
 
@@ -107,6 +112,20 @@ async function handleUpdateConfig(request, env) {
 
       GOTIFY_SERVER_URL: (newConfig.GOTIFY_SERVER_URL || '').trim(),
       GOTIFY_APP_TOKEN: mergeSecretField(config, newConfig, 'GOTIFY_APP_TOKEN', clearSecretFields),
+
+      SERVERCHAN_SENDKEY: mergeSecretField(config, newConfig, 'SERVERCHAN_SENDKEY', clearSecretFields),
+
+      PUSHPLUS_TOKEN: mergeSecretField(config, newConfig, 'PUSHPLUS_TOKEN', clearSecretFields),
+      PUSHPLUS_TOPIC: (newConfig.PUSHPLUS_TOPIC || '').trim(),
+      PUSHPLUS_CHANNEL: (newConfig.PUSHPLUS_CHANNEL || '').trim(),
+
+      NTFY_SERVER: (newConfig.NTFY_SERVER || 'https://ntfy.sh').trim() || 'https://ntfy.sh',
+      NTFY_TOPIC: (newConfig.NTFY_TOPIC || '').trim(),
+      NTFY_TOKEN: mergeSecretField(config, newConfig, 'NTFY_TOKEN', clearSecretFields),
+
+      WPUSH_APIKEY: mergeSecretField(config, newConfig, 'WPUSH_APIKEY', clearSecretFields),
+      WPUSH_CHANNEL: (newConfig.WPUSH_CHANNEL || '').trim(),
+      WPUSH_TOPIC_CODE: (newConfig.WPUSH_TOPIC_CODE || '').trim(),
 
       ENABLED_NOTIFIERS: newConfig.ENABLED_NOTIFIERS || ['notifyx'],
       TIMEZONE: newConfig.TIMEZONE || config.TIMEZONE || 'UTC',
